@@ -9,6 +9,7 @@ flask-migrate = "*"
 flask-sqlalchemy = "*"
 werkzeug = "*"
 faker = "*"
+pycountry = "*"
 
 [dev-packages]
 

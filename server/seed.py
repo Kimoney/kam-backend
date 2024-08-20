@@ -1,7 +1,7 @@
-
 from app import app, db
 from models import Country, HsCode, Product, ExportTable, ImportTable, TaxTable
 from datetime import datetime
+import pycountry
 
 # Define some mock data for HS Codes, Countries, Products, etc.
 hs_codes_data = [
@@ -48,16 +48,17 @@ with app.app_context():
     hs_codes = HsCode.query.all()
     hs_code_mapping = {hs_code.code: hs_code for hs_code in hs_codes}
 
-    # Insert Products
-    for product in products_data:
-        hs_code = hs_code_mapping.get(product["hs_code_id"])
-        if hs_code:
-            new_product = Product(name=product["name"], hs_code=hs_code)
-            db.session.add(new_product)
+    print("Database seeded successfully!")
+
+    # Clear the existing countries table if needed
+    Country.query.delete()
+
+    # Fetch and insert country data
+    for country in pycountry.countries:
+        country_entry = Country(name=country.name, code=country.alpha_2)
+        db.session.add(country_entry)
     
-    # Commit Products to the database
+    # Commit the changes to the database
     db.session.commit()
 
-    # Optionally, add data to ExportTable, ImportTable, TaxTable if needed
-
-    print("Database seeded successfully!")
+    print("Countries have been populated successfully.")
