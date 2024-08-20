@@ -7,12 +7,12 @@ metadata = MetaData(naming_convention={
 
 db = SQLAlchemy(metadata=metadata)
 
-class Food(db.Model):
-    __tablename__ = 'foods'
+class Country(db.Model):
+    __tablename__ = 'countries'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
-    ingredients = db.Column(db.String, nullable=False)
+    code = db.Column(db.String, nullable=False)
 
     def __repr__(self):
-        return f'<Food: Id: {self.id}, Name: {self.name} Ingredients: {self.ingredients}>'
+        return f'<Country: Id: {self.id}, Name: {self.name} Ingredients: {self.ingredients}>'
