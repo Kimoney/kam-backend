@@ -1,7 +1,7 @@
 from flask import Flask, make_response, jsonify
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
-from models import db, Food
+from models import db, Country, HsCode, Product
 
 app = Flask(__name__)
 
@@ -23,21 +23,11 @@ def index():
 class Index(Resource):
     def get(self):
         resp = make_response({
-            'project': 'Flask RESTful API',
-            'authors': 'John Kimani M. & Priscilla M. Wakahia'
+            'project': 'KAM Hackathon',
+            'authors': 'Joy, Kimani, Brian'
         }, 200)
         return resp
-    
-    def post(self):
-        pass
 
-    def patch(self):
-        pass
-
-    def delete(self,id):
-        food = Food.query.get(id)
-        food.query.delete()
-        return f"Deletion Successful"
 
 
 
