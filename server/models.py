@@ -64,9 +64,11 @@ class ExportTable(db.Model):
     export_date = db.Column(db.DateTime, default=datetime.utcnow)
     destination_id = db.Column(db.Integer, ForeignKey('countries.id'))
     hscode_id = db.Column(db.Integer, ForeignKey('hscodes.id'))
+    product_id = db.Column(db.Integer, ForeignKey('products.id'))
 
     destination = relationship('Country', backref=db.backref('exports', lazy=True))
     hscode = relationship('HsCode', backref=db.backref('exports', lazy=True))
+    product = relationship('Product', backref=db.backref('products', lazy=True))
 
     def __repr__(self):
         return f'<ExportTable: Id: {self.id}, FOB Value: {self.fob_value} Quantity: {self.quantity} Unit: {self.unit} Export Date: {self.export_date} Destination: {self.destination.name} HS Code: {self.hscode.code}>'
