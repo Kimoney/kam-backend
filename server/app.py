@@ -2,6 +2,8 @@ from flask import Flask, make_response, jsonify
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
 from models import db, Country, HsCode, Product
+from resources import LoginResource, LogoutResource, CountriesResource, CountryResource, HsCodesResource, ProductsResource, ExportTablesResource,  ImportTablesResource, TaxTablesResource
+
 
 app = Flask(__name__)
 
@@ -33,6 +35,18 @@ class Index(Resource):
 
 # EndPoints
 api.add_resource(Index, '/', endpoint='home')
+
+api.add_resource(LoginResource, '/login')
+api.add_resource(LogoutResource, '/logout')
+api.add_resource(CountriesResource, '/countries')
+api.add_resource(CountryResource, '/countries/<int:id>')
+api.add_resource(HsCodesResource, '/hscodes')
+api.add_resource(ProductsResource, '/products')
+api.add_resource(ExportTablesResource, '/exporttables')
+api.add_resource(ImportTablesResource, '/importtables')
+api.add_resource(TaxTablesResource, '/taxtables')
+
+
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
