@@ -13,6 +13,7 @@ pycountry = "*"
 pandas = "*"
 xlrd = "==2.0.1"
 flask-login = "*"
+gunicorn = "*"
 
 [dev-packages]
 
