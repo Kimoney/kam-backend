@@ -2,6 +2,7 @@ from flask import Flask, make_response, jsonify
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
 from models import db, Country, HsCode, Product
+from resources import ExportResource  # Import the ExportResource
 
 app = Flask(__name__)
 
@@ -28,11 +29,9 @@ class Index(Resource):
         }, 200)
         return resp
 
-
-
-
 # EndPoints
 api.add_resource(Index, '/', endpoint='home')
+api.add_resource(ExportResource, '/exports', '/exports/<int:export_id>')  # Add this line
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
