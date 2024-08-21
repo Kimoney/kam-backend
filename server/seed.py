@@ -62,3 +62,9 @@ with app.app_context():
     db.session.commit()
 
     print("Countries have been populated successfully.")
+
+
+
+
+
+
