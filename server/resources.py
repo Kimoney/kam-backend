@@ -9,6 +9,7 @@ class ExportResource(Resource):
 
         for export in exports:
             export_data = {
+                "id": export.id,
                 "Year": export.export_date.year,
                 "Month": export.export_date.month,
                 "DESTINATION": export.destination.code,
