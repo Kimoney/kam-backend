@@ -77,7 +77,7 @@ class ImportTable(db.Model):
     __tablename__ = 'importtables'
     
     id = db.Column(db.Integer, primary_key=True)
-    reg_date = db.Column(db.DateTime, default=datetime.utcnow)
+    reg_date = db.Column(db.String)
     entry_number = db.Column(db.Integer)
     entry_status = db.Column(db.String)
     quantity = db.Column(db.Integer)
@@ -102,7 +102,7 @@ class TaxTable(db.Model):
     import_duty = db.Column(db.Integer)
     excise_duty = db.Column(db.Integer)
     export_duty = db.Column(db.Integer)
-    export_rate = db.Column(db.Integer)
+    import_vat = db.Column(db.Integer)
     import_declaration_fee = db.Column(db.Integer)
     railway_development_levy = db.Column(db.Integer)
 
