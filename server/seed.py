@@ -1,11 +1,10 @@
 from app import app, db
-from models import Country, HsCode, Product
+from models import Country, HsCode, Product, ExportTable
 from datetime import datetime
 import pycountry
 import pandas as pd
 import os
 import re
-
 
 # Path to your XLS file (adjust the path if necessary)
 xls_file_path = os.path.expanduser('~/Downloads/kamexports.xls')
@@ -15,13 +14,20 @@ def normalize_hs_code(code):
     normalized = re.sub(r'\D', '', str(code))
     return normalized
 
+def parse_export_date(year, month):
+    # Combine Year and Month columns to create a datetime object
+    return datetime(year=int(year), month=int(month), day=1)
+
 # Initialize the application context
 with app.app_context():
     # Create tables
     db.create_all()
     
-    # Clear the existing HSCodes table if needed
+    # Clear existing tables if needed
     HsCode.query.delete()
+    Country.query.delete()
+    Product.query.delete()
+    ExportTable.query.delete()
 
     # Insert HS Codes
     hs_codes_data = [
@@ -54,15 +60,12 @@ with app.app_context():
     # Commit HS Codes to the database
     db.session.commit()
 
-    # Clear the existing countries table if needed
-    Country.query.delete()
-
     # Fetch and insert country data
     for country in pycountry.countries:
         country_entry = Country(name=country.name, code=country.alpha_2)
         db.session.add(country_entry)
 
-    # Commit the changes to the database
+    # Commit the country data to the database
     db.session.commit()
 
     print("Countries have been populated successfully.")
@@ -76,16 +79,15 @@ with app.app_context():
     df = pd.read_excel(xls_file_path)
 
     # Ensure the DataFrame has the necessary columns
-    if 'SHORT_DESC' not in df.columns or 'HS CODE' not in df.columns:
-        raise ValueError("XLS file must contain 'Product Name or SHORT_DESC' and 'HS CODE' columns.")
+    required_columns = ['SHORT_DESC', 'HS CODE', 'Year', 'Month', 'DESTINATION', 'QUANTITY', 'UNIT', 'FOB_VALUE']
+    if not all(column in df.columns for column in required_columns):
+        raise ValueError(f"XLS file must contain the following columns: {', '.join(required_columns)}")
 
     # Normalize HS Code column in DataFrame
     df['Normalized_HS_CODE'] = df['HS CODE'].apply(normalize_hs_code)
 
-    # Clear existing products table if needed
-    Product.query.delete()
-
     # Insert Products
+    product_mapping = {}
     for index, row in df.iterrows():
         product_name = row['SHORT_DESC']
         normalized_hs_code_str = row['Normalized_HS_CODE']
@@ -95,15 +97,71 @@ with app.app_context():
         print(hs_code_id)
 
         if hs_code_id:
-            # Create a new product instance and add to the session
-            product = Product(name=product_name, hs_code_id=hs_code_id)
-            
-            db.session.add(product)
-            # Commit the changes to the database
-            db.session.commit()
-            print(f"Product {product_name} added with HS Code ID {hs_code_id} Added")
-        else:
-            print(f"HS Code {row['HS CODE']} not found!! Skipping product {product_name}")
+            # Check if product already exists
+            existing_product = Product.query.filter_by(name=product_name, hs_code_id=hs_code_id).first()
+            if not existing_product:
+                # Create a new product instance and add to the session
+                product = Product(name=product_name, hs_code_id=hs_code_id)
+                db.session.add(product)
+                db.session.commit()
+                print(f"Product {product_name} added with HS Code ID {hs_code_id}")
+            else:
+                product = existing_product
 
+            # Map the product ID for later use
+            product_mapping[(product_name, hs_code_id)] = product.id
+        else:
+            print(f"HS Code {row['HS CODE']} not found! Skipping product {product_name}")
 
     print("Products have been populated successfully.")
+
+    # Fetch country data for lookup
+    country_mapping = {country.code: country.id for country in Country.query.all()}
+
+    # Insert Exports
+    for index, row in df.iterrows():
+        year = row['Year']
+        month = row['Month']
+        destination_code = row['DESTINATION']
+        normalized_hs_code_str = row['Normalized_HS_CODE']
+        quantity = row['QUANTITY']
+        unit = row['UNIT']
+        fob_value = row['FOB_VALUE']
+        product_name = row['SHORT_DESC']
+
+        # Create export date from Year and Month
+        export_date = parse_export_date(year, month)
+
+        # Lookup HS code ID in the database
+        hs_code_id = hs_code_mapping.get(normalized_hs_code_str)
+
+        # Lookup destination country ID
+        destination_id = country_mapping.get(destination_code)
+
+        # Lookup product ID
+        product_id = product_mapping.get((product_name, hs_code_id))
+
+        if hs_code_id and destination_id and product_id:
+            # Create a new export instance and add to the session
+            export_entry = ExportTable(
+                fob_value=fob_value,
+                quantity=quantity,
+                unit=unit,
+                export_date=export_date,
+                destination_id=destination_id,
+                hscode_id=hs_code_id,
+                product_id=product_id
+            )
+            
+            db.session.add(export_entry)
+            db.session.commit()
+            print(f"Export record added for destination {destination_code} with HS Code ID {hs_code_id} and Product ID {product_id}")
+        else:
+            if not hs_code_id:
+                print(f"HS Code {row['HS CODE']} not found! Skipping export record.")
+            if not destination_id:
+                print(f"Destination country code {destination_code} not found! Skipping export record.")
+            if not product_id:
+                print(f"Product {product_name} with HS Code ID {hs_code_id} not found! Skipping export record.")
+
+    print("Exports have been populated successfully.")
