@@ -15,9 +15,9 @@ migrate = Migrate(app, db)
 db.init_app(app)
 api = Api(app)
 
-@app.route('/')
-def index():
-    return '<h1>Welcome To Flask</h1>'
+# @app.route('/')
+# def index():
+#     return '<h1>Welcome To Flask</h1>'
 
 # Class-Based Views
 class Index(Resource):
