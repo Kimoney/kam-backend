@@ -2,7 +2,7 @@ from flask import Flask, make_response, jsonify
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
 from models import db, Country, HsCode, Product
-from resources import ExportResource, LoginResource, LogoutResource, CountriesResource, CountryResource, HsCodesResource, ProductsResource, ExportTablesResource,  ImportTablesResource, TaxTablesResource
+from resources import ExportResource, ImportResource, LoginResource, LogoutResource, CountriesResource, CountryResource, HsCodesResource, ProductsResource, ExportTablesResource,  ImportTablesResource, TaxTablesResource
 
 app = Flask(__name__)
 
@@ -32,6 +32,7 @@ class Index(Resource):
 # EndPoints
 api.add_resource(Index, '/', endpoint='home')
 api.add_resource(ExportResource, '/exports', '/exports/<int:export_id>')  # Add this line
+api.add_resource(ImportResource, '/import')
 
 api.add_resource(LoginResource, '/login')
 api.add_resource(LogoutResource, '/logout')

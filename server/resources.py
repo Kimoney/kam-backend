@@ -154,3 +154,40 @@ class ExportResource(Resource):
         
         return jsonify(result)
 
+class ImportResource(Resource):
+    def get(self):
+        imports = ImportTable.query.all()
+        result = []
+
+        # Fetch the tax information
+        tax_info = TaxTable.query.first()  # Assuming there's only one row, adjust if necessary
+
+        for imp in imports:
+            import_data = {
+                'id': imp.id,
+                'reg_date': imp.reg_date,
+                'entry_number': imp.entry_number,
+                'entry_status': imp.entry_status,
+                'quantity': imp.quantity,
+                'discharge_port': imp.discharge_port,
+                'origin_id': imp.origin.id,
+                'origin_name': imp.origin.name,
+                'origin_code': imp.origin.code,
+                'destination_id': imp.destination.id,
+                'destination_name': imp.destination.name,
+                'destination_code': imp.destination.code,
+                'product_id': imp.product.id if imp.product else None,
+                'product_name': imp.product.name if imp.product else None,
+                'hscode_id': imp.hscode.id if imp.hscode else None,
+                'hscode_code': imp.hscode.code if imp.hscode else None,
+                'hscode_description': imp.hscode.description if imp.hscode else None,
+                'import_duty': tax_info.import_duty if tax_info else None,
+                'excise_duty': tax_info.excise_duty if tax_info else None,
+                'export_duty': tax_info.export_duty if tax_info else None,
+                'import_vat': tax_info.import_vat if tax_info else None,
+                'import_declaration_fee': tax_info.import_declaration_fee if tax_info else None,
+                'railway_development_levy': tax_info.railway_development_levy if tax_info else None
+            }
+            result.append(import_data)
+        
+        return jsonify(result)
