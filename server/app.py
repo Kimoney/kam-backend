@@ -1,13 +1,18 @@
+import os
 from flask import Flask, make_response, jsonify
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
+from flask_cors import CORS
 from models import db, Country, HsCode, Product
-from resources import ExportResource, ImportResource, LoginResource, LogoutResource, CountriesResource, CountryResource, HsCodesResource, ProductsResource, ExportTablesResource,  ImportTablesResource, TaxTablesResource
+from resources import ExportResource, FileUpload, RegisterResource, AnalyzedCountriesResource, ImportResource, LoginResource, LogoutResource, CountriesResource, CountryResource, HsCodesResource, ProductsResource, ExportTablesResource,  ImportTablesResource, TaxTablesResource
 
 app = Flask(__name__)
+CORS(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://kam_user:IthrHXu3ZSh8VwUAXvV0HHeXdkPdm7M6@dpg-cr3djqaj1k6c73dkm7bg-a.frankfurt-postgres.render.com/kamhack'
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 app.json.compact = False
 
@@ -43,6 +48,12 @@ api.add_resource(ProductsResource, '/products')
 api.add_resource(ExportTablesResource, '/exporttables')
 api.add_resource(ImportTablesResource, '/importtables')
 api.add_resource(TaxTablesResource, '/taxtables')
+api.add_resource(AnalyzedCountriesResource, '/analyzed-countries')
+api.add_resource(RegisterResource, '/register')
+api.add_resource(FileUpload, '/upload')
+
+
+
 
 
 

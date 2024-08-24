@@ -15,6 +15,11 @@ xlrd = "==2.0.1"
 flask-login = "*"
 gunicorn = "*"
 openpyxl = "*"
+requests = "*"
+flask = "*"
+psycopg2-binary = "*"
+sqlalchemy-serializer = "*"
+flask-cors = "*"
 
 [dev-packages]
 

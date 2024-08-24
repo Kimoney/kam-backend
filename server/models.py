@@ -2,8 +2,8 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
+# from flask_login import UserMixin
+# from werkzeug.security import generate_password_hash, check_password_hash
 
 metadata = MetaData(naming_convention={
     "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
@@ -11,16 +11,18 @@ metadata = MetaData(naming_convention={
 
 db = SQLAlchemy(metadata=metadata)
 
-class User(UserMixin, db.Model):
+class User(db.Model):
+    __tablename__ = 'users'
+    
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
+    password = db.Column(db.String(128), nullable=False)
 
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
+    # def set_password(self, password):
+    #     self.password_hash = generate_password_hash(password)
 
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+    # def check_password(self, password):
+    #     return check_password_hash(self.password_hash, password)
 
 class Country(db.Model):
     __tablename__ = 'countries'
@@ -99,12 +101,12 @@ class TaxTable(db.Model):
     __tablename__ = 'taxtables'
     
     id = db.Column(db.Integer, primary_key=True)
-    import_duty = db.Column(db.Integer)
-    excise_duty = db.Column(db.Integer)
-    export_duty = db.Column(db.Integer)
-    import_vat = db.Column(db.Integer)
-    import_declaration_fee = db.Column(db.Integer)
-    railway_development_levy = db.Column(db.Integer)
+    import_duty = db.Column(db.Integer, default=0)
+    excise_duty = db.Column(db.Integer, default=0)
+    export_duty = db.Column(db.Integer, default=0)
+    import_vat = db.Column(db.Integer, default=0)
+    import_declaration_fee = db.Column(db.Integer, default=839)
+    railway_development_levy = db.Column(db.Integer, default=480)
 
     def __repr__(self):
         return f'<TaxTable: Id: {self.id}, Import Duty: {self.import_duty} Excise Duty: {self.excise_duty} Export Duty: {self.export_duty} Export Rate: {self.export_rate} Import Declaration Fee: {self.import_declaration_fee} Railway Development Levy: {self.railway_development_levy}>'
